@@ -1,6 +1,3 @@
-I'll create a comprehensive README file with all multithreading concepts and ASCII diagrams. Here's the complete content you can copy into your `README.md` file:
-
-```markdown
 # Java Multithreading Concepts - Complete Guide
 
 A comprehensive repository demonstrating key multithreading concepts in Java with practical examples, detailed explanations, and visual diagrams. This guide covers everything from basic synchronization to advanced Fork/Join frameworks.
@@ -9,25 +6,25 @@ A comprehensive repository demonstrating key multithreading concepts in Java wit
 
 1. [Introduction](#introduction)
 2. [Core Concepts](#core-concepts)
-   - [Synchronization](#synchronization)
-   - [Volatile Keyword](#volatile-keyword)
-   - [Atomic Variables](#atomic-variables)
-   - [Locks (ReentrantLock)](#locks-reentrantlock)
-   - [Thread Join](#thread-join)
+    - [Synchronization](#synchronization)
+    - [Volatile Keyword](#volatile-keyword)
+    - [Atomic Variables](#atomic-variables)
+    - [Locks (ReentrantLock)](#locks-reentrantlock)
+    - [Thread Join](#thread-join)
 3. [Concurrency Tools](#concurrency-tools)
-   - [Thread Pools (Executor Framework)](#thread-pools-executor-framework)
-   - [Blocking Queues](#blocking-queues)
-   - [Concurrent Collections](#concurrent-collections)
+    - [Thread Pools (Executor Framework)](#thread-pools-executor-framework)
+    - [Blocking Queues](#blocking-queues)
+    - [Concurrent Collections](#concurrent-collections)
 4. [Synchronization Aids](#synchronization-aids)
-   - [CountDownLatch](#countdownlatch)
-   - [CyclicBarrier](#cyclicbarrier)
-   - [Exchanger](#exchanger)
-   - [Semaphores](#semaphores)
+    - [CountDownLatch](#countdownlatch)
+    - [CyclicBarrier](#cyclicbarrier)
+    - [Exchanger](#exchanger)
+    - [Semaphores](#semaphores)
 5. [Advanced Patterns](#advanced-patterns)
-   - [Fork/Join Framework](#forkjoin-framework)
-   - [Deadlock](#deadlock)
-   - [Livelock](#livelock)
-   - [Dining Philosophers Problem](#dining-philosophers-problem)
+    - [Fork/Join Framework](#forkjoin-framework)
+    - [Deadlock](#deadlock)
+    - [Livelock](#livelock)
+    - [Dining Philosophers Problem](#dining-philosophers-problem)
 6. [Parallel Computing](#parallel-computing)
 7. [Stream API Examples](#stream-api-examples)
 8. [Quick Start](#quick-start)
@@ -59,30 +56,10 @@ Multithreading allows a program to execute multiple tasks concurrently, improvin
 **When to use**: When multiple threads modify shared data.
 
 **Diagram - Race Condition vs Synchronized**:
-```
-WITHOUT SYNCHRONIZATION (Race Condition):
-┌─────────────────┐        ┌─────────────────┐
-│   Thread 1      │        │   Thread 2      │
-│ Read: 0         │        │ Read: 0         │
-│ +1              │        │ +1              │
-│ Write: 1        │        │ Write: 1        │
-└─────────────────┘        └─────────────────┘
-↓ Counter = 1 (WRONG! Should be 2)
+WITHOUT SYNCHRONIZATION (Race Condition): ┌─────────────────┐ ┌─────────────────┐ │ Thread 1 │ │ Thread 2 │ │ Read: 0 │ │ Read: 0 │ │ +1 │ │ +1 │ │ Write: 1 │ │ Write: 1 │ └─────────────────┘ └─────────────────┘ ↓ Counter = 1 (WRONG! Should be 2)
 
-WITH SYNCHRONIZATION:
-┌─────────────────────────────────────┐
-│   Thread 1 (Lock Acquired)          │
-│ Read: 0 → +1 → Write: 1            │
-│ Release Lock                        │
-└─────────────────────────────────────┘
-↓
-┌─────────────────────────────────────┐
-│   Thread 2 (Lock Acquired)          │
-│ Read: 1 → +1 → Write: 2            │
-│ Release Lock                        │
-└─────────────────────────────────────┘
-↓ Counter = 2 (CORRECT!)
-```
+WITH SYNCHRONIZATION: ┌─────────────────────────────────────┐ │ Thread 1 (Lock Acquired) │ │ Read: 0 → +1 → Write: 1 │ │ Release Lock │ └─────────────────────────────────────┘ ↓ ┌─────────────────────────────────────┐ │ Thread 2 (Lock Acquired) │ │ Read: 1 → +1 → Write: 2 │ │ Release Lock │ └─────────────────────────────────────┘ ↓ Counter = 2 (CORRECT!)
+
 
 **Code Location**: `src/main/java/org/example/synchronization/SynchronizationExample.java`
 
@@ -91,20 +68,15 @@ WITH SYNCHRONIZATION:
 public synchronized void increment() {
     counter++;  // Only one thread at a time
 }
-```
+Volatile Keyword
+Purpose: Ensure visibility of changes across threads immediately.
 
----
+How it works: Forces variables to be read/written to main memory instead of thread-local cache.
 
-### Volatile Keyword
+When to use: Flags that signal thread state changes, especially simple boolean values.
 
-**Purpose**: Ensure visibility of changes across threads immediately.
+Diagram - Visibility Problem:
 
-**How it works**: Forces variables to be read/written to main memory instead of thread-local cache.
-
-**When to use**: Flags that signal thread state changes, especially simple boolean values.
-
-**Diagram - Visibility Problem**:
-```
 WITHOUT VOLATILE:
 ┌──────────────┐                    ┌──────────────┐
 │  Thread A    │                    │  Thread B    │
@@ -124,12 +96,10 @@ WITH VOLATILE:
 │ (force sync) │       flag=true      (force sync)
 └──────────────┘                    └──────────────┘
   (Immediate visibility guaranteed)
-```
+Code Location: src/main/java/org/example/volatileexample/VolatileExample.java
 
-**Code Location**: `src/main/java/org/example/volatileexample/VolatileExample.java`
+Example:
 
-**Example**:
-```java
 private volatile boolean isTerminated = false;
 
 public void run() {
@@ -137,22 +107,17 @@ public void run() {
         // do work
     }
 }
-```
+Atomic Variables
+Purpose: Provide thread-safe operations without explicit locking.
 
----
+How it works: Uses low-level CPU atomic instructions for read-modify-write operations.
 
-### Atomic Variables
+When to use: Simple operations like increment, decrement on counters.
 
-**Purpose**: Provide thread-safe operations without explicit locking.
+Advantages: Faster than synchronization for simple cases.
 
-**How it works**: Uses low-level CPU atomic instructions for read-modify-write operations.
+Diagram - Atomic Operations:
 
-**When to use**: Simple operations like increment, decrement on counters.
-
-**Advantages**: Faster than synchronization for simple cases.
-
-**Diagram - Atomic Operations**:
-```
 TRADITIONAL SYNCHRONIZED:
 Read → Modify → Write (3 steps, lock entire time)
 
@@ -166,37 +131,30 @@ MULTIPLE THREADS WITH ATOMICINTEGER:
 Thread 1: getAndIncrement() → [Atomic operation]
 Thread 2: getAndIncrement() → [Atomic operation] (Concurrent, no blocking)
 Result: Correct and faster!
-```
+Code Location: src/main/java/org/example/atomic/AtomicIntegerExample.java
 
-**Code Location**: `src/main/java/org/example/atomic/AtomicIntegerExample.java`
+Example:
 
-**Example**:
-```java
 private static AtomicInteger counter = new AtomicInteger(0);
 
 public static void increment() {
     counter.getAndIncrement();  // Atomic increment
 }
-```
+Locks (ReentrantLock)
+Purpose: Explicit locking with more control than synchronized.
 
----
+How it works: Provides lock/unlock methods with features like fairness, timeouts, and conditional waits.
 
-### Locks (ReentrantLock)
+When to use: Need for fine-grained control, timeouts, or fairness.
 
-**Purpose**: Explicit locking with more control than `synchronized`.
+Advantages:
 
-**How it works**: Provides lock/unlock methods with features like fairness, timeouts, and conditional waits.
+tryLock() with timeout
+Fairness option
+Better for multiple conditions
+Readable code
+Diagram - Lock vs Synchronized:
 
-**When to use**: Need for fine-grained control, timeouts, or fairness.
-
-**Advantages**:
-- `tryLock()` with timeout
-- Fairness option
-- Better for multiple conditions
-- Readable code
-
-**Diagram - Lock vs Synchronized**:
-```
 SYNCHRONIZED:
 lock acquired    ┌──────────────────┐
                  │  Critical Code   │
@@ -223,12 +181,10 @@ TRYLOCK WITH TIMEOUT:
           │                   │
           └─────────┬─────────┘
                  Continue
-```
+Code Location: src/main/java/org/example/lock/LockExample.java
 
-**Code Location**: `src/main/java/org/example/lock/LockExample.java`
+Example:
 
-**Example**:
-```java
 private ReentrantLock lock = new ReentrantLock(true);  // true = fair
 
 public void incrementCounter1() {
@@ -239,20 +195,15 @@ public void incrementCounter1() {
         lock.unlock();
     }
 }
-```
+Thread Join
+Purpose: Make one thread wait for another to complete before proceeding.
 
----
+How it works: Calling thread.join() blocks until the specified thread finishes.
 
-### Thread Join
+When to use: Ensuring sequential execution or waiting for completion before proceeding.
 
-**Purpose**: Make one thread wait for another to complete before proceeding.
+Diagram - Thread Execution Order:
 
-**How it works**: Calling `thread.join()` blocks until the specified thread finishes.
-
-**When to use**: Ensuring sequential execution or waiting for completion before proceeding.
-
-**Diagram - Thread Execution Order**:
-```
 WITHOUT JOIN:
 Main
   ├─→ Thread 1 starts
@@ -285,12 +236,10 @@ DEPENDENCY CHAIN (Thread 3 waits for Thread 2, which waits for Thread 1):
 └───────────────┘
         ↓
     Main continues
-```
+Code Location: src/main/java/org/example/join/JoinExample.java
 
-**Code Location**: `src/main/java/org/example/join/JoinExample.java`
+Example:
 
-**Example**:
-```java
 Thread t1 = new Thread(() -> System.out.println("Thread 1"));
 Thread t2 = new Thread(() -> System.out.println("Thread 2"));
 
@@ -301,31 +250,25 @@ t1.join();  // Wait for t1 to finish
 t2.join();  // Wait for t2 to finish
 
 System.out.println("All threads completed");
-```
+Concurrency Tools
+Thread Pools (Executor Framework)
+Purpose: Manage a pool of reusable threads to execute tasks efficiently.
 
----
+How it works: Submits tasks to a queue; worker threads pick up and execute them.
 
-## Concurrency Tools
+Advantages:
 
-### Thread Pools (Executor Framework)
+Reduces overhead of creating/destroying threads
+Automatic load balancing
+Queue management built-in
+Types:
 
-**Purpose**: Manage a pool of reusable threads to execute tasks efficiently.
+FixedThreadPool(n): Fixed n threads
+CachedThreadPool(): Creates threads as needed, reuses idle ones
+SingleThreadExecutor(): Single thread, sequential execution
+ScheduledThreadPool(n): Schedule tasks with delay/period
+Diagram - Thread Pool Workflow:
 
-**How it works**: Submits tasks to a queue; worker threads pick up and execute them.
-
-**Advantages**:
-- Reduces overhead of creating/destroying threads
-- Automatic load balancing
-- Queue management built-in
-
-**Types**:
-- `FixedThreadPool(n)`: Fixed n threads
-- `CachedThreadPool()`: Creates threads as needed, reuses idle ones
-- `SingleThreadExecutor()`: Single thread, sequential execution
-- `ScheduledThreadPool(n)`: Schedule tasks with delay/period
-
-**Diagram - Thread Pool Workflow**:
-```
 TASK SUBMISSION:
 ┌─────────┐  ┌─────────┐  ┌─────────┐
 │ Task 1  │  │ Task 2  │  │ Task 3  │
@@ -362,12 +305,10 @@ FIXED THREAD POOL (5 threads):
 │    │ Task7        │                  │
 │    └──────────────┘                  │
 └──────────────────────────────────────┘
-```
+Code Location: src/main/java/org/example/threadpool/ThreadPoolExample.java
 
-**Code Location**: `src/main/java/org/example/threadpool/ThreadPoolExample.java`
+Example:
 
-**Example**:
-```java
 ExecutorService executor = Executors.newFixedThreadPool(5);
 
 for (int i = 0; i < 10; i++) {
@@ -375,20 +316,15 @@ for (int i = 0; i < 10; i++) {
 }
 
 executor.shutdown();
-```
+Blocking Queues
+Purpose: Thread-safe queues that block when full (put) or empty (take).
 
----
+How it works: Put/take operations block until condition is met.
 
-### Blocking Queues
+When to use: Producer-consumer patterns.
 
-**Purpose**: Thread-safe queues that block when full (put) or empty (take).
+Diagram - Producer-Consumer with BlockingQueue:
 
-**How it works**: Put/take operations block until condition is met.
-
-**When to use**: Producer-consumer patterns.
-
-**Diagram - Producer-Consumer with BlockingQueue**:
-```
 BLOCKED PUT (Queue Full):
 Producer
   │
@@ -428,12 +364,10 @@ PRODUCER                    QUEUE              CONSUMER
    ├─→ put(4) ─────────→ [2,3,4]
    │                          │
    │                          │ ← take() ← [returns 2]
-```
+Code Location: src/main/java/org/example/blockingqueue/ArrayBlockingQueueExample.java
 
-**Code Location**: `src/main/java/org/example/blockingqueue/ArrayBlockingQueueExample.java`
+Example:
 
-**Example**:
-```java
 BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(10);
 
 // Producer
@@ -450,23 +384,18 @@ new Thread(() -> {
         System.out.println(item);
     }
 }).start();
-```
+Concurrent Collections
+Purpose: Thread-safe collections for concurrent access without manual synchronization.
 
----
+How it works: Uses segment-level locking (ConcurrentHashMap) allowing multiple threads to access different segments.
 
-### Concurrent Collections
+Types:
 
-**Purpose**: Thread-safe collections for concurrent access without manual synchronization.
+ConcurrentHashMap: Thread-safe map with segment locking
+Collections.synchronizedList(): Synchronized list
+CopyOnWriteArrayList: Good for read-heavy workloads
+Diagram - ConcurrentHashMap (Segment Locking):
 
-**How it works**: Uses segment-level locking (ConcurrentHashMap) allowing multiple threads to access different segments.
-
-**Types**:
-- `ConcurrentHashMap`: Thread-safe map with segment locking
-- `Collections.synchronizedList()`: Synchronized list
-- `CopyOnWriteArrayList`: Good for read-heavy workloads
-
-**Diagram - ConcurrentHashMap (Segment Locking)**:
-```
 TRADITIONAL HASHMAP (Single Lock):
 ┌─────────────────────────┐
 │   Entire HashMap        │
@@ -495,12 +424,10 @@ CONCURRENTHASHMAP (Segment Locking - 16 segments):
 CONCURRENT ACCESS:
 Thread A: put("A", 1) → Lock Segment 1 ✓
 Thread B: put("K", 2) → Lock Segment 2 ✓ (No blocking!)
-```
+Code Location: src/main/java/org/example/concurrentmap/ConcurrentMapExample.java
 
-**Code Location**: `src/main/java/org/example/concurrentmap/ConcurrentMapExample.java`
+Example:
 
-**Example**:
-```java
 ConcurrentMap<String, Integer> map = new ConcurrentHashMap<>();
 
 Thread t1 = new Thread(() -> map.put("A", 1));
@@ -508,22 +435,16 @@ Thread t2 = new Thread(() -> map.put("B", 2));
 
 t1.start();
 t2.start();
-```
+Synchronization Aids
+CountDownLatch
+Purpose: Allow threads to wait until a count reaches zero.
 
----
+How it works: Initialized with a count; threads call countDown() to decrement; await() blocks until count reaches 0.
 
-## Synchronization Aids
+When to use: Coordinating task completion without tracking threads.
 
-### CountDownLatch
+Diagram - CountDownLatch Operation:
 
-**Purpose**: Allow threads to wait until a count reaches zero.
-
-**How it works**: Initialized with a count; threads call `countDown()` to decrement; `await()` blocks until count reaches 0.
-
-**When to use**: Coordinating task completion without tracking threads.
-
-**Diagram - CountDownLatch Operation**:
-```
 INITIALIZATION:
 CountDownLatch latch = new CountDownLatch(3)
 Count: 3
@@ -555,12 +476,10 @@ TIMELINE:
  
  301ms: Main continues execution
 ─────────────────────────────────────────────
-```
+Code Location: src/main/java/org/example/latch/CountDownLatchExample.java
 
-**Code Location**: `src/main/java/org/example/latch/CountDownLatchExample.java`
+Example:
 
-**Example**:
-```java
 CountDownLatch latch = new CountDownLatch(3);
 
 // Workers
@@ -574,20 +493,15 @@ for (int i = 0; i < 3; i++) {
 // Main waits
 latch.await();  // Blocks until count = 0
 System.out.println("All workers done!");
-```
+CyclicBarrier
+Purpose: Threads wait at a barrier until all arrive, then proceed together (reusable).
 
----
+How it works: Threads call await() and block until N threads reach the barrier; then all proceed together.
 
-### CyclicBarrier
+Key Difference from CountDownLatch: Reusable and symmetric (all threads participate equally).
 
-**Purpose**: Threads wait at a barrier until all arrive, then proceed together (reusable).
+Diagram - CyclicBarrier Synchronization:
 
-**How it works**: Threads call `await()` and block until N threads reach the barrier; then all proceed together.
-
-**Key Difference from CountDownLatch**: Reusable and symmetric (all threads participate equally).
-
-**Diagram - CyclicBarrier Synchronization**:
-```
 BARRIER WITH 4 THREADS:
 
 Initial state:
@@ -623,12 +537,10 @@ T2: ▁▁▁▁▁[AWAIT]██ (Proceed at barrier)
 T3: ▁▁▁▁▁▁[AWAIT]█ (Proceed at barrier)
 T4: ▁▁▁▁▁▁▁[AWAIT] (Triggers barrier!)
     ════════════════════════════════════
-```
+Code Location: src/main/java/org/example/barrier/CyclicBarrierExample.java
 
-**Code Location**: `src/main/java/org/example/barrier/CyclicBarrierExample.java`
+Example:
 
-**Example**:
-```java
 CyclicBarrier barrier = new CyclicBarrier(5);
 ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -639,20 +551,15 @@ for (int i = 0; i < 5; i++) {
         System.out.println("All synchronized, proceeding!");
     });
 }
-```
+Exchanger
+Purpose: Two threads exchange data at a synchronization point.
 
----
+How it works: Threads call exchange() with their data; blocks until both threads arrive, then swap data.
 
-### Exchanger
+When to use: Producer-consumer pairs exchanging buffers or state.
 
-**Purpose**: Two threads exchange data at a synchronization point.
+Diagram - Data Exchange:
 
-**How it works**: Threads call `exchange()` with their data; blocks until both threads arrive, then swap data.
-
-**When to use**: Producer-consumer pairs exchanging buffers or state.
-
-**Diagram - Data Exchange**:
-```
 BASIC EXCHANGE:
 Thread A                          Thread B
     │                                │
@@ -677,12 +584,10 @@ Time  │ Thread 1                Thread 2
   3   │ Process Data2           Process Data1
   4   │ exchange(Data2') ←→ exchange(Data1')
   5   │ Received Data1'         Received Data2'
-```
+Code Location: src/main/java/org/example/exchanger/ExchangerExample.java
 
-**Code Location**: `src/main/java/org/example/exchanger/ExchangerExample.java`
+Example:
 
-**Example**:
-```java
 Exchanger<Integer> exchanger = new Exchanger<>();
 
 Thread t1 = new Thread(() -> {
@@ -696,20 +601,15 @@ Thread t2 = new Thread(() -> {
     int receivedValue = exchanger.exchange(myValue);
     System.out.println("Got: " + receivedValue);
 });
-```
+Semaphores
+Purpose: Controls access to a resource with a fixed number of permits.
 
----
+How it works: Threads acquire permits before accessing resource; release when done.
 
-### Semaphores
+When to use: Limiting concurrent access (e.g., connection pool, parking lot).
 
-**Purpose**: Controls access to a resource with a fixed number of permits.
+Diagram - Semaphore with 3 Permits:
 
-**How it works**: Threads acquire permits before accessing resource; release when done.
-
-**When to use**: Limiting concurrent access (e.g., connection pool, parking lot).
-
-**Diagram - Semaphore with 3 Permits**:
-```
 INITIAL STATE:
 Semaphore (permits=3)
 Available: 3
@@ -746,12 +646,10 @@ T3: ──[WORK]release() ────────────────
 T4: ───────[BLOCKED][WORK]release() ──
 T5: ────────────────[BLOCKED][WORK]
     ════════════════════════════════════
-```
+Code Location: (Not found in repo, but standard usage)
 
-**Code Location**: (Not found in repo, but standard usage)
+Example:
 
-**Example**:
-```java
 Semaphore semaphore = new Semaphore(3);  // 3 permits
 
 Thread thread = new Thread(() -> {
@@ -763,30 +661,24 @@ Thread thread = new Thread(() -> {
         semaphore.release();  // Release the permit
     }
 });
-```
+Advanced Patterns
+Fork/Join Framework
+Purpose: Efficiently parallelize divide-and-conquer algorithms using recursive tasks.
 
----
+How it works:
 
-## Advanced Patterns
+Tasks are split into smaller subtasks (fork)
+Subtasks execute in parallel
+Results are merged (join)
+Work-stealing balances load
+When to use: Recursive algorithms, parallel array processing.
 
-### Fork/Join Framework
+Key Classes:
 
-**Purpose**: Efficiently parallelize divide-and-conquer algorithms using recursive tasks.
+RecursiveTask<V>: Returns a result
+RecursiveAction: No return value
+Diagram - Fork/Join Operation:
 
-**How it works**:
-- Tasks are split into smaller subtasks (fork)
-- Subtasks execute in parallel
-- Results are merged (join)
-- Work-stealing balances load
-
-**When to use**: Recursive algorithms, parallel array processing.
-
-**Key Classes**:
-- `RecursiveTask<V>`: Returns a result
-- `RecursiveAction`: No return value
-
-**Diagram - Fork/Join Operation**:
-```
 DIVIDE AND CONQUER:
                         Task [1..100]
                               │
@@ -831,12 +723,10 @@ Worker B idle
     │
     └─→ Steal half of A's queue
         (Keep load balanced!)
-```
+Code Location: src/main/java/org/example/forkjoin/PrintAction.java, src/main/java/org/example/forkjoin/FibonacciTask.java
 
-**Code Location**: `src/main/java/org/example/forkjoin/PrintAction.java`, `src/main/java/org/example/forkjoin/FibonacciTask.java`
+Example:
 
-**Example**:
-```java
 class SumTask extends RecursiveTask<Long> {
     private int[] array;
     
@@ -862,29 +752,24 @@ class SumTask extends RecursiveTask<Long> {
 // Usage
 ForkJoinPool pool = new ForkJoinPool();
 long result = pool.invoke(new SumTask(array));
-```
+Deadlock
+Purpose: Understanding and preventing deadlock situations.
 
----
+What it is: Two or more threads are blocked forever, waiting for each other to release resources.
 
-### Deadlock
+Conditions (All must be present):
 
-**Purpose**: Understanding and preventing deadlock situations.
+Mutual Exclusion: Resource can't be shared
+Hold and Wait: Thread holds resource while waiting
+No Preemption: Can't force resource release
+Circular Wait: T1 waits for T2, T2 waits for T1
+Prevention Strategies:
 
-**What it is**: Two or more threads are blocked forever, waiting for each other to release resources.
+Acquire locks in consistent order
+Use timeouts with tryLock()
+Avoid circular dependencies
+Diagram - Deadlock Scenario:
 
-**Conditions (All must be present)**:
-1. Mutual Exclusion: Resource can't be shared
-2. Hold and Wait: Thread holds resource while waiting
-3. No Preemption: Can't force resource release
-4. Circular Wait: T1 waits for T2, T2 waits for T1
-
-**Prevention Strategies**:
-- Acquire locks in consistent order
-- Use timeouts with `tryLock()`
-- Avoid circular dependencies
-
-**Diagram - Deadlock Scenario**:
-```
 DEADLOCK EXAMPLE:
 Thread A                          Thread B
     │                                │
@@ -929,12 +814,10 @@ Thread A                          Thread B
     │                    in same order ✓
     │                                │
     └─ NO DEADLOCK! ─────────────────┘
-```
+Code Location: src/main/java/org/example/deadlock/DeadlockExample.java
 
-**Code Location**: `src/main/java/org/example/deadlock/DeadlockExample.java`
+Example - Prevention:
 
-**Example - Prevention**:
-```java
 public void worker1() {
     lock1.lock();
     try {
@@ -965,27 +848,22 @@ public void worker2() {
         lock1.unlock();
     }
 }
-```
+Livelock
+Purpose: Understanding and preventing livelock situations.
 
----
+What it is: Threads are active but make no progress, constantly yielding to each other.
 
-### Livelock
+Difference from Deadlock:
 
-**Purpose**: Understanding and preventing livelock situations.
+Deadlock: Threads are blocked, waiting
+Livelock: Threads are running but accomplishing nothing
+Prevention:
 
-**What it is**: Threads are active but make no progress, constantly yielding to each other.
+Use timeouts
+Randomize retry delays
+Use proper synchronization primitives
+Diagram - Livelock Scenario:
 
-**Difference from Deadlock**:
-- Deadlock: Threads are blocked, waiting
-- Livelock: Threads are running but accomplishing nothing
-
-**Prevention**:
-- Use timeouts
-- Randomize retry delays
-- Use proper synchronization primitives
-
-**Diagram - Livelock Scenario**:
-```
 LIVELOCK EXAMPLE:
 Thread A                          Thread B
     │                                │
@@ -1040,24 +918,19 @@ if (lock1.tryLock(100, TimeUnit.MILLISECONDS)) {
     // Back off / retry with delay
     Thread.sleep(random.nextInt(100));
 }
-```
+Code Location: src/main/java/org/example/livelock/LiveLockExample.java
 
-**Code Location**: `src/main/java/org/example/livelock/LiveLockExample.java`
+Dining Philosophers Problem
+Purpose: Classic synchronization problem illustrating deadlock and resource contention.
 
----
+Problem:
 
-### Dining Philosophers Problem
+N philosophers sit around a table
+Each has a bowl of spaghetti
+Between each pair: one chopstick
+To eat: philosopher needs BOTH chopsticks
+Deadlock Scenario:
 
-**Purpose**: Classic synchronization problem illustrating deadlock and resource contention.
-
-**Problem**:
-- N philosophers sit around a table
-- Each has a bowl of spaghetti
-- Between each pair: one chopstick
-- To eat: philosopher needs BOTH chopsticks
-
-**Deadlock Scenario**:
-```
 DEADLOCK CONDITION:
      ┌─────────────────┐
      │   Philosopher1  │
@@ -1089,23 +962,18 @@ Only N-1 philosophers allowed to eat simultaneously
 
 SOLUTION 3 - MONITOR PATTERN:
 Central manager grants permission to eat
-```
+Code Location: (Not present; classic example to implement)
 
-**Code Location**: (Not present; classic example to implement)
+Parallel Computing
+Purpose: Leveraging multiple processor cores for speed.
 
----
+How it works:
 
-## Parallel Computing
+Operating system schedules threads on different cores
+Each core executes independently
+True parallelism (not just time-slicing)
+Concurrency vs Parallelism:
 
-**Purpose**: Leveraging multiple processor cores for speed.
-
-**How it works**:
-- Operating system schedules threads on different cores
-- Each core executes independently
-- True parallelism (not just time-slicing)
-
-**Concurrency vs Parallelism**:
-```
 CONCURRENCY (Single Core - Time Slicing):
 Task A: ████ ░ ████ ░ ████ ░ (Interleaved)
 Task B: ░ ████ ░ ████ ░ ████
@@ -1125,25 +993,20 @@ Total Time: 8 hours (8 tasks × 1 hour each)
 Parallel (8 cores):
 Total Time: 1 hour (8 tasks × 1 hour each, in parallel)
 Speedup: 8x
-```
+Code Location: src/main/java/org/example/parallelcomputing/ParallelComputingExample.java
 
-**Code Location**: `src/main/java/org/example/parallelcomputing/ParallelComputingExample.java`
+Stream API Examples
+Purpose: Functional programming style operations on collections.
 
----
+Concepts:
 
-## Stream API Examples
+map(): Transform each element
+filter(): Keep elements matching condition
+collect(): Gather results
+groupingBy(): Group elements by key
+sorted(): Sort elements
+Diagram - Stream Operations:
 
-**Purpose**: Functional programming style operations on collections.
-
-**Concepts**:
-- `map()`: Transform each element
-- `filter()`: Keep elements matching condition
-- `collect()`: Gather results
-- `groupingBy()`: Group elements by key
-- `sorted()`: Sort elements
-
-**Diagram - Stream Operations**:
-```
 STREAM PIPELINE:
 Source → Filter → Map → Collect → Result
 
@@ -1180,51 +1043,33 @@ groupingBy(Person::getDepartment, counting())
     │       "Marketing": 2,
     │       "HR": 2
     │   }
-```
+Code Locations:
 
-**Code Locations**:
-- `src/main/java/org/example/streamapi/BookCustomExample.java`
-- `src/main/java/org/example/streamapi/groupingby/PersonExample.java`
-
----
-
-## Quick Start
-
-### Prerequisites
-- Java 11 or higher
-- Maven 3.6+
-- IDE (IntelliJ IDEA, Eclipse, VS Code)
-
-### Build the Project
-```bash
+src/main/java/org/example/streamapi/BookCustomExample.java
+src/main/java/org/example/streamapi/groupingby/PersonExample.java
+Quick Start
+Prerequisites
+Java 11 or higher
+Maven 3.6+
+IDE (IntelliJ IDEA, Eclipse, VS Code)
+Build the Project
 cd multithreading
 mvn clean compile
-```
+Run Examples
+Run all tests:
 
-### Run Examples
-
-**Run all tests**:
-```bash
 mvn test
-```
+Run specific class:
 
-**Run specific class**:
-```bash
 java -cp target/classes org.example.synchronization.SynchronizationExample
 java -cp target/classes org.example.forkjoin.FibonacciTask
 java -cp target/classes org.example.streamapi.BookCustomExample
-```
+Run via IDE:
 
-**Run via IDE**:
-1. Open project in IDE
-2. Navigate to main class
-3. Right-click → Run
-
----
-
-## Project Structure
-
-```
+Open project in IDE
+Navigate to main class
+Right-click → Run
+Project Structure
 multithreading/
 ├── src/main/java/org/example/
 │   ├── Main.java
@@ -1286,28 +1131,18 @@ multithreading/
 │           └── Person.java
 ├── pom.xml
 └── README.md
-```
-
----
-
-## Common Patterns & Best Practices
-
-### Thread-Safe Patterns
-
-| Pattern | Use Case | Thread-Safe |
-|---------|----------|-------------|
-| `synchronized` | Simple shared resource | ✓ |
-| `AtomicInteger` | Counter operations | ✓ |
-| `ReentrantLock` | Complex locking needs | ✓ |
-| `ConcurrentHashMap` | Shared map | ✓ |
-| `BlockingQueue` | Producer-consumer | ✓ |
-| `CountDownLatch` | Task coordination | ✓ |
-| `CyclicBarrier` | Phase synchronization | ✓ |
-| `ThreadPool` | Task execution | ✓ |
-
-### When to Use What
-
-```
+Common Patterns & Best Practices
+Thread-Safe Patterns
+Pattern	Use Case	Thread-Safe
+synchronized	Simple shared resource	✓
+AtomicInteger	Counter operations	✓
+ReentrantLock	Complex locking needs	✓
+ConcurrentHashMap	Shared map	✓
+BlockingQueue	Producer-consumer	✓
+CountDownLatch	Task coordination	✓
+CyclicBarrier	Phase synchronization	✓
+ThreadPool	Task execution	✓
+When to Use What
 Need simple mutual exclusion?
   → synchronized or ReentrantLock
 
@@ -1334,82 +1169,51 @@ Need to limit concurrent access?
 
 Need visibility across threads?
   → volatile keyword
-```
+Troubleshooting
+Common Issues
+Issue: Race condition - incorrect counter value
 
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: Race condition - incorrect counter value
-```
 Cause: Multiple threads modifying counter without synchronization
 Solution: Use synchronized, AtomicInteger, or ReentrantLock
-```
+Issue: Deadlock - program hangs indefinitely
 
-**Issue**: Deadlock - program hangs indefinitely
-```
 Cause: Circular lock dependencies
 Solution: Acquire locks in consistent order, use tryLock() with timeout
-```
+Issue: Livelock - high CPU but no progress
 
-**Issue**: Livelock - high CPU but no progress
-```
 Cause: Threads busy yielding to each other
 Solution: Add timeouts, randomize retries, use better synchronization
-```
+Issue: Visibility problem - thread doesn't see updates
 
-**Issue**: Visibility problem - thread doesn't see updates
-```
 Cause: CPU caching, compiler optimizations
 Solution: Use volatile keyword or proper synchronization
-```
-
----
-
-## Resources
-
-### Official Documentation
-- [Oracle Java Concurrency Tutorial](https://docs.oracle.com/javase/tutorial/essential/concurrency/)
-- [Java Concurrent API Javadocs](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/package-summary.html)
-- [Java Memory Model](https://docs.oracle.com/javase/specs/jls/se17/html/jls-17.html)
-
-### Books
-- "Java Concurrency in Practice" by Brian Goetz et al.
-- "Effective Java" by Joshua Bloch
-
-### Online Courses
-- [Udemy Multithreading Courses](https://www.udemy.com/)
-- [Java Concurrency Tutorials](https://www.baeldung.com/java-concurrency)
-
-### Tools
-- VisualVM: Thread monitoring and analysis
-- JConsole: Java monitoring console
-- IntelliJ Debugger: Thread debugging
-- Thread Dump Analyzer: Analyze deadlocks
-
----
-
-## Contributing
-
+Resources
+Official Documentation
+Oracle Java Concurrency Tutorial
+Java Concurrent API Javadocs
+Java Memory Model
+Books
+"Java Concurrency in Practice" by Brian Goetz et al.
+"Effective Java" by Joshua Bloch
+Online Courses
+Udemy Multithreading Courses
+Java Concurrency Tutorials
+Tools
+VisualVM: Thread monitoring and analysis
+JConsole: Java monitoring console
+IntelliJ Debugger: Thread debugging
+Thread Dump Analyzer: Analyze deadlocks
+Contributing
 Feel free to extend this repository with:
-- Additional examples for Dining Philosophers problem
-- Semaphore implementations
-- Performance comparisons
-- More Stream API examples
 
----
-
-## License
-
+Additional examples for Dining Philosophers problem
+Semaphore implementations
+Performance comparisons
+More Stream API examples
+License
 This project is for educational purposes.
 
----
-
-## Quick Reference Card
-
-```
+Quick Reference Card
 ╔══════════════════════════════════════════════════════════════╗
 ║           JAVA MULTITHREADING QUICK REFERENCE              ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -1426,11 +1230,3 @@ This project is for educational purposes.
 ║ Fork/Join           → Parallel divide-and-conquer            ║
 ║ ExecutorService     → Thread pool management                 ║
 ╚══════════════════════════════════════════════════════════════╝
-```
-
----
-
-**Last Updated**: April 27, 2026
-**Version**: 1.0
-**Maintainer**: Multithreading Study Guide
-```
